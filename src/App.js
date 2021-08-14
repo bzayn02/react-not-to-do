@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Alert , Button} from "react-bootstrap";
 import { AddTaskForm } from "./components/form/AddTaskForm";
 
@@ -12,7 +12,8 @@ const App = () => {
 	const [tasks, setTasks] = useState([]);
 	const [badTasks, setBadTasks] = useState([]);
 	const [error, setError] = useState(false);
-	const [taskToDelete, setTaskToDelete]=useState([])
+	const [taskToDelete, setTaskToDelete]=useState([]);
+	const [badTaskToDelete, setBadTaskToDelete] = useState([]);
 
 	const taskHrs = tasks.reduce((subttl, itm) => subttl + +itm.hr, 0);
 	const badHours = badTasks.reduce((subttl, itm) => subttl + +itm.hr, 0);
@@ -77,12 +78,38 @@ const App = () => {
 				
 					setTasks(newArg)
 				}
+
+				//from bad lsit
+				const deleteFromBadTaskList = () => {
+					console.log(tasks, taskToDelete)
+						const newArg = badTasks.filter((item,i)=> !badTaskToDelete.includes(i))
+							
+						
+						setBadTaskToDelete([])
+						
+							setBadTasks(newArg)
+						}
 	
 //Delete a list from task lists and bad lists
 		const handleOnDeleteItems = () => {
 		
 			deleteFromTaskList();
+			deleteFromBadTaskList();
 		};
+
+		//list teh abd items indexx on checkbox click
+		const handleOnBadTaskClicked=(e)=>{
+			const {checked, value} =e.target
+			if(checked){
+				setBadTaskToDelete([
+					...badTaskToDelete, +value
+				])
+			}
+			else{
+const filterArg= badTaskToDelete.filter((item)=> item !== +value)
+setBadTaskToDelete(filterArg);
+			}
+		}
 
 	return (
 		<div className="main">
@@ -114,6 +141,7 @@ const App = () => {
 							badTasks={badTasks}
 							markAsGoodList={markAsGoodList}
 							badHours={badHours}
+							handleOnBadTaskClicked={handleOnBadTaskClicked}
 						/>
 					</Col>
 				</Row>

@@ -1,7 +1,7 @@
 import React from "react";
 import { Table, Button, Alert } from "react-bootstrap";
 
-export const NotToDoList = ({ badTasks, markAsGoodList, badHours }) => {
+export const NotToDoList = ({ badTasks, markAsGoodList, badHours , handleOnBadTaskClicked}) => {
 	return (
 		<div>
 			<h2>Bad Task List</h2>
@@ -17,7 +17,11 @@ export const NotToDoList = ({ badTasks, markAsGoodList, badHours }) => {
 					{badTasks.map((itm, i) => (
 						<tr key={i}>
 							<td>
-								<input type="checkbox" /> <label>{itm.task}</label>
+								<input 
+								type="checkbox"
+								defaultValue={i}
+								onChange={handleOnBadTaskClicked}
+								/> <label>{itm.task}</label>
 							</td>
 							<td>{itm.hr}</td>
 							<td>
