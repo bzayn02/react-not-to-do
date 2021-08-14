@@ -53,7 +53,7 @@ const App = () => {
 	
 		
 		const {checked, value} = e.target;
-		console.log(checked, value)
+		
 		if (checked){
 			setTaskToDelete([
 				 ...taskToDelete, +value
@@ -70,7 +70,7 @@ const App = () => {
 
 		//Delete item from task list only
 		const deleteFromTaskList = () => {
-			console.log(tasks, taskToDelete)
+			
 				const newArg = tasks.filter((item,i)=> !taskToDelete.includes(i))
 					
 				
@@ -81,7 +81,7 @@ const App = () => {
 
 				//from bad lsit
 				const deleteFromBadTaskList = () => {
-					console.log(tasks, taskToDelete)
+					
 						const newArg = badTasks.filter((item,i)=> !badTaskToDelete.includes(i))
 							
 						
