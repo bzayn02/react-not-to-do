@@ -18,6 +18,7 @@ export const TaskList = ({ tasks, markAsBadList, handleOnTaskClicked , taskToDel
 						<tr key={i}>
 							<td>
 								<input type="checkbox" 
+								
 								checked = {taskToDelete.includes(i)}
 								defaultValue = {i}
 								onChange ={handleOnTaskClicked}
