@@ -116,7 +116,7 @@ setBadTaskToDelete(filterArg);
 			<Container>
 				<Row>
 					<Col>
-						<h1 className="text-center mt-5">Not To Do Task List</h1>
+						<h1 className="text-center mt-5">Not To-Do Task List</h1>
 					</Col>
 				</Row>
 				<hr />
@@ -124,7 +124,7 @@ setBadTaskToDelete(filterArg);
 					<Col>
 						{error && (
 							<Alert variant="danger">
-								You don't have enough hours to allocate this task
+								!!! You can not add this task since it exceeds total hours in a week i.e. 168 hrs/week. 
 							</Alert>
 						)}
 					</Col>

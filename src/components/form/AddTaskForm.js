@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { Form, Row, Col, Button } from "react-bootstrap";
 
 const initialForm = {
-	task: "Coding",
-	hr: 10,
+	task: "",
+	hr:"",
 };
 export const AddTaskForm = ({ addTaskList }) => {
 	const [frmData, setFrmData] = useState(initialForm);
@@ -30,7 +30,7 @@ export const AddTaskForm = ({ addTaskList }) => {
 						onChange={handleOnChange}
 						value={frmData.task}
 						maxLength="30"
-						placeholder="task"
+						placeholder="Enter the task"
 						required
 					/>
 				</Col>
@@ -40,7 +40,7 @@ export const AddTaskForm = ({ addTaskList }) => {
 						onChange={handleOnChange}
 						value={frmData.hr}
 						type="number"
-						placeholder="hours"
+						placeholder="Enter the hours"
 						required
 					/>
 				</Col>
