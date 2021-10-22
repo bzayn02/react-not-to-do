@@ -30,3 +30,16 @@ export const getTaskLists = () => {
     }
   });
 };
+
+// switch tasks between to do and not to do
+export const switchTask = (taskInfo) => {
+  return new Promise(async (resolve) => {
+    try {
+      const { data } = await axios.patch(taskApi, taskInfo);
+      resolve(data);
+    } catch (error) {
+      console.log(error);
+      resolve(false);
+    }
+  });
+};

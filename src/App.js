@@ -4,7 +4,7 @@ import { AddTaskForm } from './components/form/AddTaskForm';
 
 import { TaskList } from './components/task-lists/TaskList';
 import { NotToDoList } from './components/task-lists/NotToDoList';
-import { createTask, getTaskLists } from './apis/taskApi';
+import { createTask, getTaskLists, switchTask } from './apis/taskApi';
 
 import './App.css';
 
@@ -29,6 +29,11 @@ const App = () => {
     fetchingAllTask();
   }, []);
 
+  const fetchAllTasks = async () => {
+    const { result } = await getTaskLists();
+    setTasks(result);
+  };
+
   const addTaskList = async (frmDt) => {
     const result = await createTask(frmDt);
 
@@ -49,24 +54,31 @@ const App = () => {
   // 	setTasks([...tasks, frmDt]);
   // }
 
-  //1. create a function and pass to task list component
-  //2. on button click, grab the index and pass the index to a function in the parent component
-  const markAsBadList = (i) => {
-    //3. take the task out of the task[] based on the index value we received
-    const tempTask = [...tasks];
-    const badTask = tempTask.splice(i, 1)[0];
-    //4. put the taken out task item to the badtask[]
-    setBadTasks([...badTasks, badTask]);
-    setTasks(tempTask);
+  const markAsBadList = async (_id) => {
+    console.log(_id);
+    const dt = {
+      id: _id,
+      todo: false,
+    };
+    const res = await switchTask(dt);
+    console.log(res);
+    if (res.result._id) {
+      fetchAllTasks();
+    }
   };
 
-  const markAsGoodList = (i) => {
-    const tempBadList = [...badTasks];
-    const goodTask = tempBadList.splice(i, 1)[0];
-    setTasks([...tasks, goodTask]);
-    setBadTasks(tempBadList);
+  const markAsGoodList = async (_id) => {
+    console.log(_id);
+    const dt = {
+      id: _id,
+      todo: true,
+    };
+    const res = await switchTask(dt);
+    console.log(res);
+    if (res.result._id) {
+      fetchAllTasks();
+    }
   };
-
   //colelct indices of the task lsits  to be deleted.
 
   const handleOnTaskClicked = (e) => {
@@ -118,6 +130,11 @@ const App = () => {
     }
   };
 
+  //task list only
+  const taskListsOnly = tasks.filter((item) => item.todo);
+
+  //bad list only
+  const badTaskListsOnly = tasks.filter((item) => !item.todo);
   return (
     <div className="main">
       <Container>
@@ -145,7 +162,7 @@ const App = () => {
               <Spinner variant="info" animation="border" />
             )}
             <TaskList
-              tasks={tasks}
+              tasks={taskListsOnly}
               markAsBadList={markAsBadList}
               taskToDelete={taskToDelete}
               handleOnTaskClicked={handleOnTaskClicked}
@@ -153,7 +170,7 @@ const App = () => {
           </Col>
           <Col>
             <NotToDoList
-              badTasks={badTasks}
+              badTasks={badTaskListsOnly}
               markAsGoodList={markAsGoodList}
               badHours={badHours}
               handleOnBadTaskClicked={handleOnBadTaskClicked}
