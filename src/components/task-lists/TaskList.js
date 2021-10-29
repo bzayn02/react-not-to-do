@@ -19,16 +19,15 @@ export const TaskList = ({
           </tr>
         </thead>
         <tbody>
-          {tasks.map((itm, i) => (
+          {tasks?.map((itm, i) => (
             <tr key={i}>
               <td>
                 <input
                   type="checkbox"
-                  checked={taskToDelete.includes(i)}
-                  defaultValue={i}
+                  defaultValue={itm._id}
+                  checked={taskToDelete.includes(itm._id)}
                   onChange={handleOnTaskClicked}
-                />
-
+                />{' '}
                 <label>{itm.task}</label>
               </td>
               <td>{itm.hr}</td>

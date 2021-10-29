@@ -43,3 +43,15 @@ export const switchTask = (taskInfo) => {
     }
   });
 };
+
+export const deleteTasks = (ids) => {
+  return new Promise(async (resolve) => {
+    try {
+      const { data } = await axios.delete(taskApi, { data: ids });
+      resolve(data);
+    } catch (error) {
+      console.log(error);
+      resolve(false);
+    }
+  });
+};

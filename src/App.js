@@ -4,21 +4,22 @@ import { AddTaskForm } from './components/form/AddTaskForm';
 
 import { TaskList } from './components/task-lists/TaskList';
 import { NotToDoList } from './components/task-lists/NotToDoList';
-import { createTask, getTaskLists, switchTask } from './apis/taskApi';
+import {
+  createTask,
+  getTaskLists,
+  switchTask,
+  deleteTasks,
+} from './apis/taskApi';
 
 import './App.css';
 
-const hrPwk = 168;
+const HRPW = 168;
 const App = () => {
   const [tasks, setTasks] = useState([]);
-  const [badTasks, setBadTasks] = useState([]);
   const [error, setError] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState([]);
-  const [badTaskToDelete, setBadTaskToDelete] = useState([]);
 
-  const taskHrs = tasks.reduce((subttl, itm) => subttl + +itm.hr, 0);
-  const badHours = badTasks.reduce((subttl, itm) => subttl + +itm.hr, 0);
-  const totalHrs = taskHrs + badHours;
+  const totalHrs = tasks?.reduce((subttl, itm) => subttl + +itm.hr, 0);
 
   useEffect(() => {
     // fetch all the tasks  and add to the lists.
@@ -35,24 +36,19 @@ const App = () => {
   };
 
   const addTaskList = async (frmDt) => {
+    if (totalHrs + +frmDt.hr > HRPW) {
+      return alert('Not enough hours left to allocate the task.');
+    }
     const result = await createTask(frmDt);
 
     if (result._id) {
       //new task has been added successfully, now we can call api to fetch allteh data
-
+      fetchAllTasks();
       console.log(result);
     } else {
       alert('unable to add teh task at the moment. please try again later.');
     }
   };
-  // sending form data to the server
-
-  // if (hrPwk < totalHrs + +frmDt.hr) {
-  // 	setError(true);
-  // } else {
-  // 	error && setError(false);
-  // 	setTasks([...tasks, frmDt]);
-  // }
 
   const markAsBadList = async (_id) => {
     console.log(_id);
@@ -85,56 +81,31 @@ const App = () => {
     const { checked, value } = e.target;
 
     if (checked) {
-      setTaskToDelete([...taskToDelete, +value]);
+      setTaskToDelete([...taskToDelete, value]);
     } else {
       // const tempArg = [...taskToDelete]
       // tempArg.splice(value, 1)
       // setTaskToDelete(tempArg);
-      const filterArg = taskToDelete.filter((item) => item !== +value);
+      const filterArg = taskToDelete.filter((item) => item !== value);
       setTaskToDelete(filterArg);
     }
   };
 
-  //Delete item from task list only
-  const deleteFromTaskList = () => {
-    const newArg = tasks.filter((item, i) => !taskToDelete.includes(i));
-
-    setTaskToDelete([]);
-
-    setTasks(newArg);
-  };
-
-  //from bad lsit
-  const deleteFromBadTaskList = () => {
-    const newArg = badTasks.filter((item, i) => !badTaskToDelete.includes(i));
-
-    setBadTaskToDelete([]);
-
-    setBadTasks(newArg);
-  };
-
   //Delete a list from task lists and bad lists
-  const handleOnDeleteItems = () => {
-    deleteFromTaskList();
-    deleteFromBadTaskList();
-  };
-
-  //list teh abd items indexx on checkbox click
-  const handleOnBadTaskClicked = (e) => {
-    const { checked, value } = e.target;
-    if (checked) {
-      setBadTaskToDelete([...badTaskToDelete, +value]);
-    } else {
-      const filterArg = badTaskToDelete.filter((item) => item !== +value);
-      setBadTaskToDelete(filterArg);
-    }
+  const handleOnDeleteItems = async () => {
+    //request serrver to delete the items from database
+    const { deletedCount } = await deleteTasks({ ids: taskToDelete });
+    deletedCount > 0 && fetchAllTasks();
   };
 
   //task list only
-  const taskListsOnly = tasks.filter((item) => item.todo);
+  const taskListsOnly = tasks?.filter((item) => item.todo);
 
   //bad list only
-  const badTaskListsOnly = tasks.filter((item) => !item.todo);
+  const badTaskListsOnly = tasks?.filter((item) => !item.todo);
+
+  console.log(taskToDelete);
+
   return (
     <div className="main">
       <Container>
@@ -158,9 +129,7 @@ const App = () => {
         <hr />
         <Row>
           <Col>
-            {!tasks.length && !badTasks.length && (
-              <Spinner variant="info" animation="border" />
-            )}
+            {!tasks?.length && <Spinner variant="info" animation="border" />}
             <TaskList
               tasks={taskListsOnly}
               markAsBadList={markAsBadList}
@@ -172,8 +141,8 @@ const App = () => {
             <NotToDoList
               badTasks={badTaskListsOnly}
               markAsGoodList={markAsGoodList}
-              badHours={badHours}
-              handleOnBadTaskClicked={handleOnBadTaskClicked}
+              handleOnBadTaskClicked={handleOnTaskClicked}
+              badTaskToDelete={taskToDelete}
             />
           </Col>
         </Row>
