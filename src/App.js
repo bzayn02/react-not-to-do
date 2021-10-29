@@ -14,10 +14,15 @@ import {
 import './App.css';
 
 const HRPW = 168;
+const initialResponse = {
+  status: '',
+  message: '',
+};
 const App = () => {
   const [tasks, setTasks] = useState([]);
   const [error, setError] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState([]);
+  const [apiResponse, setApiResponse] = useState(initialResponse);
 
   const totalHrs = tasks?.reduce((subttl, itm) => subttl + +itm.hr, 0);
 
@@ -37,16 +42,27 @@ const App = () => {
 
   const addTaskList = async (frmDt) => {
     if (totalHrs + +frmDt.hr > HRPW) {
-      return alert('Not enough hours left to allocate the task.');
+      setApiResponse({
+        status: 'error',
+        message: 'Not enough hours left to allocate the task.',
+      });
+      return;
     }
     const result = await createTask(frmDt);
 
     if (result._id) {
       //new task has been added successfully, now we can call api to fetch allteh data
       fetchAllTasks();
-      console.log(result);
+      setApiResponse({
+        status: 'success',
+        message: 'New task has been added successfully.',
+      });
     } else {
-      alert('unable to add teh task at the moment. please try again later.');
+      setApiResponse({
+        status: 'error',
+        message:
+          'Unable to add the task at the moment, Please try again later.',
+      });
     }
   };
 
@@ -95,7 +111,12 @@ const App = () => {
   const handleOnDeleteItems = async () => {
     //request serrver to delete the items from database
     const { deletedCount } = await deleteTasks({ ids: taskToDelete });
-    deletedCount > 0 && fetchAllTasks();
+    deletedCount > 0 &&
+      fetchAllTasks() &&
+      setApiResponse({
+        status: 'success',
+        message: 'Selected task has been deleted.',
+      });
   };
 
   //task list only
@@ -117,10 +138,13 @@ const App = () => {
         <hr />
         <Row>
           <Col>
-            {error && (
-              <Alert variant="danger">
-                !!! You can not add this task since it exceeds total hours in a
-                week i.e. 168 hrs/week.
+            {apiResponse.message && (
+              <Alert
+                variant={
+                  apiResponse.status === 'success' ? 'success' : 'danger'
+                }
+              >
+                {apiResponse.message}
               </Alert>
             )}
           </Col>
