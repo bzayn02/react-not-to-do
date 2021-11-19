@@ -2,16 +2,18 @@ import { useState, useEffect } from 'react';
 import { Container, Row, Col, Alert, Button, Spinner } from 'react-bootstrap';
 import { AddTaskForm } from './components/form/AddTaskForm';
 
+import { useDispatch, useSelector } from 'react-redux';
 import { TaskList } from './components/task-lists/TaskList';
 import { NotToDoList } from './components/task-lists/NotToDoList';
+import { AlertMessage } from './components/message/AlertMessage';
 import {
   createTask,
   getTaskLists,
   switchTask,
   deleteTasks,
 } from './apis/taskApi';
-
 import './App.css';
+import { fetchTaskLists } from './components/task-lists/taskAction';
 
 const HRPW = 168;
 const initialResponse = {
@@ -19,20 +21,16 @@ const initialResponse = {
   message: '',
 };
 const App = () => {
+  const dispatch = useDispatch();
+  const { isPending } = useSelector((state) => state.task);
   const [tasks, setTasks] = useState([]);
-  const [error, setError] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState([]);
   const [apiResponse, setApiResponse] = useState(initialResponse);
 
   const totalHrs = tasks?.reduce((subttl, itm) => subttl + +itm.hr, 0);
 
   useEffect(() => {
-    // fetch all the tasks  and add to the lists.
-    const fetchingAllTask = async () => {
-      const { result } = await getTaskLists();
-      setTasks(result);
-    };
-    fetchingAllTask();
+    dispatch(fetchTaskLists());
   }, []);
 
   const fetchAllTasks = async () => {
@@ -40,31 +38,16 @@ const App = () => {
     setTasks(result);
   };
 
-  const addTaskList = async (frmDt) => {
-    if (totalHrs + +frmDt.hr > HRPW) {
-      setApiResponse({
-        status: 'error',
-        message: 'Not enough hours left to allocate the task.',
-      });
-      return;
-    }
-    const result = await createTask(frmDt);
-
-    if (result._id) {
-      //new task has been added successfully, now we can call api to fetch allteh data
-      fetchAllTasks();
-      setApiResponse({
-        status: 'success',
-        message: 'New task has been added successfully.',
-      });
-    } else {
-      setApiResponse({
-        status: 'error',
-        message:
-          'Unable to add the task at the moment, Please try again later.',
-      });
-    }
-  };
+  // const addTaskList = async (frmDt) => {
+  //   if (totalHrs + +frmDt.hr > HRPW) {
+  //     setApiResponse({
+  //       status: 'error',
+  //       message: 'Not enough hours left to allocate the task.',
+  //     });
+  //     return;
+  //   }
+  // const result = await createTask(frmDt);
+  // };
 
   const markAsBadList = async (_id) => {
     console.log(_id);
@@ -99,9 +82,6 @@ const App = () => {
     if (checked) {
       setTaskToDelete([...taskToDelete, value]);
     } else {
-      // const tempArg = [...taskToDelete]
-      // tempArg.splice(value, 1)
-      // setTaskToDelete(tempArg);
       const filterArg = taskToDelete.filter((item) => item !== value);
       setTaskToDelete(filterArg);
     }
@@ -138,22 +118,14 @@ const App = () => {
         <hr />
         <Row>
           <Col>
-            {apiResponse.message && (
-              <Alert
-                variant={
-                  apiResponse.status === 'success' ? 'success' : 'danger'
-                }
-              >
-                {apiResponse.message}
-              </Alert>
-            )}
+            <AlertMessage />
           </Col>
         </Row>
-        <AddTaskForm addTaskList={addTaskList} />
+        <AddTaskForm />
         <hr />
         <Row>
           <Col>
-            {!tasks?.length && <Spinner variant="info" animation="border" />}
+            {isPending && <Spinner variant="info" animation="border" />}
             <TaskList
               tasks={taskListsOnly}
               markAsBadList={markAsBadList}
